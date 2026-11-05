@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Agente Autónomo de Negocios</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-8">
+  <div class="max-w-3xl mx-auto space-y-6">
+    <h1 class="text-3xl font-bold text-indigo-400">Generador Autónomo de Negocios</h1>
+    <p class="text-slate-400">Escribe tu idea de negocio y el agente creará el producto, los posts para X y los correos para clientes.</p>
+
+    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
+      <label class="block text-sm font-medium">Tu Idea de Negocio:</label>
+      <input id="businessIdea" type="text" placeholder="Ej: Generador de itinerarios de viajes personalizados" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+      <button onclick="runAutonomousAgent()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-lg font-bold transition">Ejecutar Agente Autónomo</button>
+    </div>
+
+    <!-- Resultados en tiempo real -->
+    <div id="output" class="hidden space-y-4">
+      <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+        <h3 class="font-bold text-indigo-300">1. Servicio / Producto Generado (HTML/JS)</h3>
+        <pre id="productCode" class="text-xs bg-slate-950 p-3 rounded mt-2 overflow-x-auto text-green-400"></pre>
+      </div>
+      <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+        <h3 class="font-bold text-indigo-300">2. Publicación para X (Twitter)</h3>
+        <p id="tweetContent" class="text-sm mt-2 text-slate-200"></p>
+      </div>
+      <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+        <h3 class="font-bold text-indigo-300">3. Plantilla de Correo Automático</h3>
+        <p id="emailContent" class="text-sm mt-2 text-slate-200 whitespace-pre-line"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function runAutonomousAgent() {
+      const idea = document.getElementById('businessIdea').value;
+      if (!idea) return alert('Por favor introduce una idea');
+
+      document.getElementById('output').classList.remove('hidden');
+      document.getElementById('productCode').innerText = "Generando código del servicio...";
+      document.getElementById('tweetContent').innerText = "Redactando post de X...";
+      document.getElementById('emailContent').innerText = "Creando plantilla de correo...";
+
+      const res = await fetch('/api/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idea })
+      });
+      const data = await res.json();
+
+      document.getElementById('productCode').innerText = data.productCode;
+      document.getElementById('tweetContent').innerText = data.tweet;
+      document.getElementById('emailContent').innerText = data.email;
+    }
+  </script>
+</body>
+</html>
