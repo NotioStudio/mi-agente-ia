@@ -1,13 +1,29 @@
 const express = require('express');
 const path = require('path');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "TU_API_KEY");
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// Clave de Groq obtenida de las variables de entorno de Render
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
+// Función auxiliar para llamar a Groq fácilmente
+async function askGroq(promptText) {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${GROQ_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: "llama3-8b-8192", // Modelo rápido y gratuito de Groq
+      messages: [{ role: "user", content: promptText }]
+    })
+  });
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
 
 // Ruta principal
 app.get('/', (req, res) => {
@@ -18,9 +34,9 @@ app.get('/', (req, res) => {
 app.post('/api/agent', async (req, res) => {
   try {
     const { idea } = req.body;
-    const p1 = await model.generateContent(`Crea el código HTML/JS funcional para un servicio web de: "${idea}".`);
-    const p2 = await model.generateContent(`Escribe un hilo de 3 posts para X promocionando: "${idea}".`);
-    res.json({ productCode: p1.response.text(), tweet: p2.response.text() });
+    const productCode = await askGroq(`Crea el código HTML/JS funcional para un servicio web de: "${idea}".`);
+    const tweet = await askGroq(`Escribe un hilo de 3 posts para X promocionando: "${idea}".`);
+    res.json({ productCode, tweet });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -30,15 +46,11 @@ app.post('/api/agent', async (req, res) => {
 app.post('/api/youtube/automate-channel', async (req, res) => {
   try {
     const { channelName, niche, format } = req.body;
-    const scout = await model.generateContent(`Analiza el nicho "${niche}". Genera un concepto de video viral para formato "${format}".`);
-    const script = await model.generateContent(`Escribe un guion para "${format}" sobre "${scout.response.text()}". El primer segundo debe tener un gancho impactante.`);
-    const thumbs = await model.generateContent(`Dame 3 títulos de alto CTR y descripciones para miniaturas de este guion.`);
+    const concept = await askGroq(`Analiza el nicho "${niche}". Genera un concepto de video viral para formato "${format}".`);
+    const script = await askGroq(`Escribe un guion para "${format}" sobre "${concept}". El primer segundo debe tener un gancho impactante.`);
+    const thumbnailStrategy = await askGroq(`Dame 3 títulos de alto CTR y descripciones para miniaturas de este guion.`);
 
-    res.json({
-      concept: scout.response.text(),
-      script: script.response.text(),
-      thumbnailStrategy: thumbs.response.text()
-    });
+    res.json({ concept, script, thumbnailStrategy });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
