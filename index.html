@@ -2,63 +2,149 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mi Agente Autónomo de Negocios</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Automatización e IA</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-white min-h-screen p-8">
-  <div class="max-w-3xl mx-auto space-y-6">
-    <h1 class="text-3xl font-bold text-indigo-400">Generador Autónomo de Negocios</h1>
-    <p class="text-slate-400">Escribe tu idea de negocio y el agente creará el producto, los posts para X y los correos para clientes.</p>
-
-    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
-      <label class="block text-sm font-medium">Tu Idea de Negocio:</label>
-      <input id="businessIdea" type="text" placeholder="Ej: Generador de itinerarios de viajes personalizados" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
-      <button onclick="runAutonomousAgent()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-lg font-bold transition">Ejecutar Agente Autónomo</button>
+<body class="bg-slate-900 text-white min-h-screen p-6">
+  <div class="max-w-5xl mx-auto space-y-6">
+    
+    <!-- Navegación por pestañas -->
+    <div class="flex space-x-4 border-b border-slate-700 pb-4">
+      <button onclick="switchTab('business')" id="btn-business" class="px-4 py-2 font-bold rounded-lg bg-indigo-600 text-white">1. Generador de Negocios</button>
+      <button onclick="switchTab('youtube')" id="btn-youtube" class="px-4 py-2 font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white">2. Granja de Canales YouTube</button>
     </div>
 
-    <!-- Resultados en tiempo real -->
-    <div id="output" class="hidden space-y-4">
-      <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
-        <h3 class="font-bold text-indigo-300">1. Servicio / Producto Generado</h3>
-        <pre id="productCode" class="text-xs bg-slate-950 p-3 rounded mt-2 overflow-x-auto text-green-400"></pre>
+    <!-- SECCIÓN 1: GENERADOR DE NEGOCIOS -->
+    <div id="tab-business" class="space-y-6">
+      <h1 class="text-3xl font-bold text-indigo-400">Generador Autónomo de Negocios</h1>
+      <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
+        <label class="block text-sm font-medium">Tu Idea de Negocio:</label>
+        <input id="businessIdea" type="text" placeholder="Ej: Generador de itinerarios de viajes personalizados" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+        <button onclick="runBusinessAgent()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-lg font-bold transition">Ejecutar Agente de Negocios</button>
       </div>
-      <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
-        <h3 class="font-bold text-indigo-300">2. Publicación para X (Twitter)</h3>
-        <p id="tweetContent" class="text-sm mt-2 text-slate-200"></p>
-      </div>
-      <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
-        <h3 class="font-bold text-indigo-300">3. Plantilla de Correo Automático</h3>
-        <p id="emailContent" class="text-sm mt-2 text-slate-200 whitespace-pre-line"></p>
+
+      <div id="out-business" class="hidden space-y-4">
+        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+          <h3 class="font-bold text-indigo-300">Servicio Generado (Código/Estructura)</h3>
+          <pre id="productCode" class="text-xs bg-slate-950 p-3 rounded mt-2 overflow-x-auto text-green-400"></pre>
+        </div>
+        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+          <h3 class="font-bold text-indigo-300">Publicación para X (Twitter)</h3>
+          <p id="tweetContent" class="text-sm mt-2 text-slate-200"></p>
+        </div>
       </div>
     </div>
+
+    <!-- SECCIÓN 2: GRANJA DE CANALES DE YOUTUBE -->
+    <div id="tab-youtube" class="hidden space-y-6">
+      <h1 class="text-3xl font-bold text-red-500">Granja de Canales de YouTube / Shorts</h1>
+      <p class="text-slate-400 text-sm">Gestiona múltiples canales con un equipo de agentes IA que automatiza guiones, miniaturas y análisis.</p>
+
+      <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Nombre del Canal:</label>
+            <input id="ytChannel" type="text" placeholder="Ej: Curiosidades de Ciencia" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Nicho / Temática:</label>
+            <input id="ytNiche" type="text" placeholder="Ej: Historia, Finanzas, Terror..." class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Formato de Video:</label>
+            <select id="ytFormat" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-700 text-white">
+              <option value="YouTube Shorts / TikTok (Vertical)">YouTube Shorts / TikTok (16:9 Vertical)</option>
+              <option value="Video Largo de YouTube (Horizontal)">Video Largo (16:9 Horizontal)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Conexión de Cuenta:</label>
+            <button type="button" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-lg font-medium text-slate-300 flex items-center justify-center space-x-2">
+              <span>Conectar Cuenta de Google / YouTube</span>
+            </button>
+          </div>
+        </div>
+
+        <button onclick="runYouTubeAgent()" class="w-full bg-red-600 hover:bg-red-500 py-3 rounded-lg font-bold transition">Iniciar Producción Automatizada</button>
+      </div>
+
+      <!-- Estado de los Agentes en Vivo -->
+      <div id="out-youtube" class="hidden space-y-4">
+        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+          <h3 class="font-bold text-red-400">1. Agente Scout (Idea Viral Detectada)</h3>
+          <p id="ytConcept" class="text-sm mt-2 text-slate-200"></p>
+        </div>
+        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+          <h3 class="font-bold text-red-400">2. Agente Guionista (Gancho inicial + Guion)</h3>
+          <pre id="ytScript" class="text-xs bg-slate-950 p-3 rounded mt-2 overflow-x-auto text-slate-300 whitespace-pre-wrap"></pre>
+        </div>
+        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+          <h3 class="font-bold text-red-400">3. Agente Miniaturista (Pruebas A/B)</h3>
+          <p id="ytThumbnails" class="text-sm mt-2 text-slate-200 whitespace-pre-line"></p>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- AQUÍ EMPIEZA EL JAVASCRIPT -->
   <script>
-    async function runAutonomousAgent() {
-      const idea = document.getElementById('businessIdea').value;
-      if (!idea) return alert('Por favor introduce una idea');
-
-      document.getElementById('output').classList.remove('hidden');
-      document.getElementById('productCode').innerText = "Generando código del servicio...";
-      document.getElementById('tweetContent').innerText = "Redactando post de X...";
-      document.getElementById('emailContent').innerText = "Creando plantilla de correo...";
-
-      try {
-        const res = await fetch('/api/agent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idea })
-        });
-        const data = await res.json();
-
-        document.getElementById('productCode').innerText = data.productCode;
-        document.getElementById('tweetContent').innerText = data.tweet;
-        document.getElementById('emailContent').innerText = data.email;
-      } catch (error) {
-        console.error(error);
-        alert('Recuerda que necesitas conectar el servidor (backend) para procesar las respuestas.');
+    function switchTab(tab) {
+      if (tab === 'business') {
+        document.getElementById('tab-business').classList.remove('hidden');
+        document.getElementById('tab-youtube').classList.add('hidden');
+        document.getElementById('btn-business').className = "px-4 py-2 font-bold rounded-lg bg-indigo-600 text-white";
+        document.getElementById('btn-youtube').className = "px-4 py-2 font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white";
+      } else {
+        document.getElementById('tab-youtube').classList.remove('hidden');
+        document.getElementById('tab-business').classList.add('hidden');
+        document.getElementById('btn-youtube').className = "px-4 py-2 font-bold rounded-lg bg-red-600 text-white";
+        document.getElementById('btn-business').className = "px-4 py-2 font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white";
       }
+    }
+
+    async function runBusinessAgent() {
+      const idea = document.getElementById('businessIdea').value;
+      if (!idea) return alert('Escribe una idea');
+      document.getElementById('out-business').classList.remove('hidden');
+      document.getElementById('productCode').innerText = "Generando servicio...";
+      document.getElementById('tweetContent').innerText = "Redactando post...";
+
+      const res = await fetch('/api/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idea })
+      });
+      const data = await res.json();
+      document.getElementById('productCode').innerText = data.productCode;
+      document.getElementById('tweetContent').innerText = data.tweet;
+    }
+
+    async function runYouTubeAgent() {
+      const channelName = document.getElementById('ytChannel').value;
+      const niche = document.getElementById('ytNiche').value;
+      const format = document.getElementById('ytFormat').value;
+
+      if (!channelName || !niche) return alert('Por favor rellena el nombre y el nicho del canal');
+
+      document.getElementById('out-youtube').classList.remove('hidden');
+      document.getElementById('ytConcept').innerText = "Scout IA analizando tendencias en " + niche + "...";
+      document.getElementById('ytScript').innerText = "Guionista IA creando el texto con gancho...";
+      document.getElementById('ytThumbnails').innerText = "Generando opciones A/B de miniatura...";
+
+      const res = await fetch('/api/youtube/automate-channel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channelName, niche, format })
+      });
+      const data = await res.json();
+
+      document.getElementById('ytConcept').innerText = data.concept;
+      document.getElementById('ytScript').innerText = data.script;
+      document.getElementById('ytThumbnails').innerText = data.thumbnailStrategy;
     }
   </script>
 </body>
